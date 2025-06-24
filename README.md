@@ -2,5 +2,5 @@ Team ByteMe
 Members:  
 Viraj Rahul Gupta  
 Shreshth Kabra  
-Advait Balachander  
+Advait Balachandar  
 Problem Statement: NA
