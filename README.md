@@ -1,5 +1,5 @@
 Team ByteMe
 Members:
-Viraj Gupta
+Viraj Rahul Gupta
 Shreshth Kabra
 Advait Balachander
