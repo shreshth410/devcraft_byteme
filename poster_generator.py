@@ -1,0 +1,215 @@
+"""
+Poster Generator for Campus Events
+Generates event posters using AI image generation
+"""
+
+import logging
+from typing import Dict, Any, Optional
+from datetime import datetime
+import os
+
+logger = logging.getLogger(__name__)
+
+class PosterGenerator:
+    """Generate event posters using AI image generation"""
+    
+    def __init__(self, output_dir: str = "data/posters"):
+        """Initialize poster generator
+        
+        Args:
+            output_dir: Directory to save generated posters
+        """
+        self.output_dir = output_dir
+        os.makedirs(output_dir, exist_ok=True)
+        
+    def generate_event_poster(self, event_details: Dict[str, Any]) -> Optional[str]:
+        """Generate a poster for an event
+        
+        Args:
+            event_details: Dictionary containing event information
+                - title: Event title
+                - date: Event date
+                - time: Event time
+                - location: Event location
+                - description: Event description
+                - theme: Visual theme/style (optional)
+                - colors: Color scheme (optional)
+                
+        Returns:
+            Path to generated poster image or None if failed
+        """
+        try:
+            # Extract event information
+            title = event_details.get("title", "Campus Event")
+            date = event_details.get("date", "TBD")
+            time = event_details.get("time", "TBD")
+            location = event_details.get("location", "Campus")
+            description = event_details.get("description", "")
+            theme = event_details.get("theme", "modern academic")
+            colors = event_details.get("colors", "blue and white")
+            
+            # Create detailed prompt for poster generation
+            prompt = self._create_poster_prompt(
+                title, date, time, location, description, theme, colors
+            )
+            
+            # Generate filename
+            safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '-', '_')).rstrip()
+            safe_title = safe_title.replace(' ', '_')
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"{safe_title}_{timestamp}.png"
+            poster_path = os.path.join(self.output_dir, filename)
+            
+            # Note: In a real implementation, this would call the media_generate_image tool
+            # For now, we'll create a placeholder implementation
+            logger.info(f"Generated poster prompt: {prompt}")
+            logger.info(f"Poster would be saved to: {poster_path}")
+            
+            # Create a simple text-based poster as placeholder
+            self._create_text_poster(event_details, poster_path)
+            
+            return poster_path
+            
+        except Exception as e:
+            logger.error(f"Error generating poster: {e}")
+            return None
+    
+    def _create_poster_prompt(self, title: str, date: str, time: str, 
+                            location: str, description: str, theme: str, colors: str) -> str:
+        """Create detailed prompt for AI image generation"""
+        
+        prompt = f"""
+Create a professional event poster with the following specifications:
+
+MAIN TITLE: "{title}"
+DATE: {date}
+TIME: {time}
+LOCATION: {location}
+
+DESIGN STYLE: {theme} design with {colors} color scheme
+LAYOUT: Vertical poster format (portrait orientation)
+
+VISUAL ELEMENTS:
+- Bold, readable typography for the title
+- Clear hierarchy of information (title, date/time, location)
+- Professional academic aesthetic
+- Clean, modern layout
+- Appropriate spacing and margins
+- University/college campus theme
+
+ADDITIONAL DETAILS:
+{description if description else "Engaging campus event for students"}
+
+REQUIREMENTS:
+- High contrast for readability
+- Professional appearance suitable for campus posting
+- Clear information hierarchy
+- Visually appealing and attention-grabbing
+- Print-ready quality
+- No copyrighted imagery
+        """
+        
+        return prompt.strip()
+    
+    def _create_text_poster(self, event_details: Dict[str, Any], output_path: str) -> None:
+        """Create a simple text-based poster as placeholder
+        
+        This is a placeholder implementation. In production, this would be replaced
+        with actual AI image generation.
+        """
+        try:
+            # Create a simple text representation
+            poster_content = f"""
+===========================================
+           CAMPUS EVENT POSTER
+===========================================
+
+{event_details.get('title', 'Campus Event').upper()}
+
+Date: {event_details.get('date', 'TBD')}
+Time: {event_details.get('time', 'TBD')}
+Location: {event_details.get('location', 'Campus')}
+
+{event_details.get('description', 'Join us for this exciting campus event!')}
+
+Theme: {event_details.get('theme', 'modern academic')}
+Colors: {event_details.get('colors', 'blue and white')}
+
+===========================================
+        Generated by Campus Copilot
+===========================================
+            """
+            
+            # Save as text file (placeholder)
+            text_path = output_path.replace('.png', '.txt')
+            with open(text_path, 'w', encoding='utf-8') as f:
+                f.write(poster_content)
+                
+            logger.info(f"Placeholder poster created at: {text_path}")
+            
+        except Exception as e:
+            logger.error(f"Error creating placeholder poster: {e}")
+    
+    def generate_club_poster(self, club_name: str, event_type: str, 
+                           additional_info: Dict[str, Any]) -> Optional[str]:
+        """Generate a poster specifically for club events
+        
+        Args:
+            club_name: Name of the club
+            event_type: Type of event (meeting, workshop, social, etc.)
+            additional_info: Additional event details
+            
+        Returns:
+            Path to generated poster or None if failed
+        """
+        event_details = {
+            "title": f"{club_name} {event_type}",
+            "theme": "club activity",
+            "colors": "vibrant and energetic",
+            **additional_info
+        }
+        
+        return self.generate_event_poster(event_details)
+    
+    def generate_academic_poster(self, course_info: Dict[str, Any]) -> Optional[str]:
+        """Generate a poster for academic events (lectures, seminars, etc.)
+        
+        Args:
+            course_info: Course and event information
+            
+        Returns:
+            Path to generated poster or None if failed
+        """
+        event_details = {
+            "theme": "academic professional",
+            "colors": "navy blue and gold",
+            **course_info
+        }
+        
+        return self.generate_event_poster(event_details)
+    
+    def list_generated_posters(self) -> list:
+        """List all generated posters
+        
+        Returns:
+            List of poster file paths
+        """
+        try:
+            if not os.path.exists(self.output_dir):
+                return []
+                
+            posters = []
+            for filename in os.listdir(self.output_dir):
+                if filename.endswith(('.png', '.jpg', '.jpeg', '.txt')):
+                    posters.append(os.path.join(self.output_dir, filename))
+                    
+            return sorted(posters, key=os.path.getmtime, reverse=True)
+            
+        except Exception as e:
+            logger.error(f"Error listing posters: {e}")
+            return []
+
+def create_poster_generator(output_dir: str = "data/posters") -> PosterGenerator:
+    """Factory function to create poster generator"""
+    return PosterGenerator(output_dir)
+
